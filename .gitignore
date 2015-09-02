@@ -1,0 +1,28 @@
+#####
+# Intellij
+#####
+.idea/**
+out/
+*.iml
+*.iws
+*.ipr
+*.ids
+*.orig
+
+
+#####
+# Virtualenv
+#####
+.venv/
+
+
+#####
+# Python compiled files
+#####
+*.pyc
+
+
+#####
+# Custom temporary files
+#####
+tmp-files/
