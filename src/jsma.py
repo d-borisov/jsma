@@ -37,10 +37,10 @@ CODE_CANT_DELETE_SPRING_PROFILE_FILE = 191
 DEFAULT_SPRING_PROFILE = 'local'
 
 # time duration (in seconds) to let application signals about successful start
-DEFAULT_APP_START_TIMEOUT = 15
+DEFAULT_APP_START_TIMEOUT = 30
 
 # time duration (in seconds) to let application finishes its work
-DEFAULT_APP_STOP_TIMEOUT = 10
+DEFAULT_APP_STOP_TIMEOUT = 15
 
 
 class Params:
@@ -350,7 +350,6 @@ def stop(application_path, application_parameters):
 
     pid = open(pid_file).readline().strip()
     print "~ Try to stop process with pid: {}".format(pid)
-    print
 
     kill(pid)
 
@@ -362,7 +361,7 @@ def stop(application_path, application_parameters):
 
     os.remove(pid_file)
     if os.path.exists(pid_file):
-        print "~ Oops! Cant delete pid file: {}".format(pid_file)
+        print "~ Oops! Application was stopped but cant delete pid file: {}".format(pid_file)
         print "~"
         sys.exit(CODE_CANT_DELETE_PID_FILE)
 
@@ -370,7 +369,7 @@ def stop(application_path, application_parameters):
     if os.path.exists(spring_profile_file):
         os.remove(spring_profile_file)
         if os.path.exists(spring_profile_file):
-            print "~ Oops! Cant delete spring profile file: {}".format(spring_profile_file)
+            print "~ Oops! Application was stopped but cant delete spring profile file: {}".format(spring_profile_file)
             print "~"
             sys.exit(CODE_CANT_DELETE_SPRING_PROFILE_FILE)
 
