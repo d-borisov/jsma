@@ -127,6 +127,7 @@ def java_cmd(app_jar, p):
     args = p.args[:] if p.args is not None else ['']
     args.append('-server')
     args.append('-Dfile.encoding=utf-8')
+    args.append('--spring.main.show_banner=false')
     args.append('-Dspring.profiles.active={}'.format(p.profile))
 
     return [java_path()] + args + ['-jar', app_jar]
