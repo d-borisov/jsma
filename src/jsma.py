@@ -42,13 +42,16 @@ DEFAULT_APP_START_TIMEOUT = 30
 # time duration (in seconds) to let application finishes its work
 DEFAULT_APP_STOP_TIMEOUT = 15
 
+# executable file extension
+DEFAULT_EXECUTABLE_EXTENSION = 'jar'
 
 class Params:
-    def __init__(self, spring_profile, start_timeout, stop_timeout, rem_args):
+    def __init__(self, spring_profile, start_timeout, stop_timeout, executable_extension, rem_args):
         self.profile = spring_profile
         self.start_timeout = start_timeout
         self.stop_timeout = stop_timeout
         self.args = rem_args
+        self.executable_extension = executable_extension
 
 
 # ~~~~~~~~~
@@ -65,6 +68,7 @@ def parse_arguments():
                 profile = DEFAULT_SPRING_PROFILE
                 start_timeout = DEFAULT_APP_START_TIMEOUT
                 stop_timeout = DEFAULT_APP_STOP_TIMEOUT
+                executable_extension = DEFAULT_EXECUTABLE_EXTENSION
 
                 for a in remaining_args:
                     if a.find('--%') == 0:
@@ -73,6 +77,8 @@ def parse_arguments():
                         start_timeout = int(a[16:])
                     if a.find('--stop-timeout=') == 0:
                         stop_timeout = int(a[15:])
+                    if a.find('--executable-extension=') == 0:
+                        executable_extension = a[23:]
 
                 if '--%{}'.format(profile) in remaining_args:
                     remaining_args.remove('--%{}'.format(profile))
@@ -80,8 +86,10 @@ def parse_arguments():
                     remaining_args.remove('--start-timeout={}'.format(start_timeout))
                 if '--stop-timeout={}'.format(stop_timeout) in remaining_args:
                     remaining_args.remove('--stop-timeout={}'.format(stop_timeout))
+                if '--executable-extension=={}'.format(executable_extension) in remaining_args:
+                    remaining_args.remove('--executable-extension=={}'.format(executable_extension))
 
-                return cmd, Params(profile, start_timeout, stop_timeout, remaining_args)
+                return cmd, Params(profile, start_timeout, stop_timeout, executable_extension, remaining_args)
 
     print r""
     print r" Wrong using! Possible templates:"
@@ -95,12 +103,14 @@ def parse_arguments():
 # ~~~~~~~~~
 # Files
 
-def detect_application_jar(application_path):
-    jars = filter(os.path.isfile, glob.glob(application_path + '/*.jar'))
-    if len(jars) == 1:
-        return jars[0]
+def detect_application_executable(application_path, executable_extension):
+    executables = filter(os.path.isfile, glob.glob(application_path + '/*.' + executable_extension))
+    if len(executables) == 1:
+        return executables[0]
     else:
-        print "~ Cannot detect application jar. Jars: {}".format(jars)
+        print "~ Cannot detect application executable."
+        print "~ Extension: {}.".format(executable_extension)
+        print "~ Executables: {}".format(executables)
         print "~"
         sys.exit(CODE_BAD_APP_FILES)
 
@@ -123,13 +133,13 @@ def java_path():
         return os.path.normpath("{}/bin/java".format(os.environ['JAVA_HOME']))
 
 
-def java_cmd(app_jar, p):
+def java_cmd(app_executable, p):
     args = p.args[:] if p.args is not None else ['']
     args.append('-server')
     args.append('-Dfile.encoding=utf-8')
     args.append('-Dspring.profiles.active={}'.format(p.profile))
 
-    return [java_path()] + args + ['-jar', app_jar]
+    return [java_path()] + args + ['-jar', app_executable]
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -283,7 +293,7 @@ def _start_app(app_start_command, file_path, application_parameters):
 
 
 def start(application_path, application_parameters):
-    application = detect_application_jar(application_path)
+    application = detect_application_executable(application_path, application_parameters.executable_extension)
     pid_file = detect_pid_file(application_path)
     spring_profile_file = detect_spring_profile_file(application_path)
 
