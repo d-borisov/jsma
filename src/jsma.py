@@ -86,8 +86,8 @@ def parse_arguments():
                     remaining_args.remove('--start-timeout={}'.format(start_timeout))
                 if '--stop-timeout={}'.format(stop_timeout) in remaining_args:
                     remaining_args.remove('--stop-timeout={}'.format(stop_timeout))
-                if '--executable-extension=={}'.format(executable_extension) in remaining_args:
-                    remaining_args.remove('--executable-extension=={}'.format(executable_extension))
+                if '--executable-extension={}'.format(executable_extension) in remaining_args:
+                    remaining_args.remove('--executable-extension={}'.format(executable_extension))
 
                 return cmd, Params(profile, start_timeout, stop_timeout, executable_extension, remaining_args)
 
